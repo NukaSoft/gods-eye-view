@@ -45,6 +45,7 @@ function ensureRoot() {
   if (root && document.body.contains(root)) return root;
   root = document.createElement('aside');
   root.id = 'dataverse-fs-hud';
+  root.dataset.skin = 'nukasoft-dynamics'; // NukaSoft tin-sign
   root.setAttribute('aria-live', 'polite');
   root.hidden = true;
   root.innerHTML = `

@@ -6,13 +6,14 @@
   <title>God's Eye View — Dynamics</title>
   <link rel="icon" type="image/svg+xml" href="/logo.svg" />
   <link rel="stylesheet" href="/style.css" />
+  <link rel="stylesheet" href="/style-nukasoft-dynamics.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20,400,0,0" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet" />
 </head>
-<body>
+<body class="skin-nukasoft-dynamics">
   <div id="cesiumContainer"></div>
   <div id="world-overlay-root" aria-hidden="true">
     <canvas id="world-overlay-canvas"></canvas>
@@ -25,7 +26,7 @@
   <!-- Title -->
   <div id="title-bar">
     <div class="title-glow"></div>
-    <h1><span class="title-logo brand-logo" data-logo-gaze data-logo-src="/logo.svg" aria-hidden="true"><img src="/logo.svg" alt="" /></span> <span>GOD'S EYE <span class="title-accent">VIEW</span></span></h1>
+    <h1><span class="title-logo brand-logo" data-logo-gaze data-logo-src="/logo.svg" aria-hidden="true" hidden></span><span>God's Eye View <span class="title-accent">— Dynamics</span></span></h1>
     <p class="subtitle">Real-time view of your fleet in the field</p>
   </div>
 
@@ -836,7 +837,7 @@
   <aside id="first-run-launcher" role="dialog" aria-labelledby="first-run-title" aria-describedby="first-run-description" hidden>
     <div class="first-run-scanline" aria-hidden="true"></div>
     <header class="first-run-header">
-      <span class="first-run-kicker">MISSION CONTROL · FIRST LAUNCH</span>
+      <span class="first-run-kicker">DISPATCH WALL · FLEET VIEW</span>
     </header>
     <h2 id="first-run-title">Choose your first view</h2>
     <!-- The card's one persuasive line, owner-authored and VERBATIM (2026-08-23)
@@ -915,7 +916,7 @@
   <div id="loading-screen">
     <div class="loader-content">
       <span class="loader-logo brand-logo" data-logo-gaze data-logo-src="/logo.svg" aria-hidden="true"><img src="/logo.svg" alt="" /></span>
-      <h2>GOD'S EYE <span class="title-accent">VIEW</span></h2>
+      <h2>God's Eye View <span class="title-accent">— Dynamics</span></h2>
       <p class="loader-status">Initializing photorealistic world...</p>
     </div>
   </div>
