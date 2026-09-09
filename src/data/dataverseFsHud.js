@@ -28,8 +28,13 @@ const RICH_FIELDS = {
     ['phone', 'Phone'],
   ],
   resource: [
+    ['characteristic', 'Role'],
+    ['organizationalUnit', 'OU'],
+    ['workHourStart', 'Start'],
+    ['workHourEnd', 'End'],
+    ['timeZone', 'TZ'],
+    ['contactName', 'Contact'],
     ['title', 'Title'],
-    ['status', 'Status'],
   ],
   site: [
     ['status', 'Status'],
@@ -162,6 +167,8 @@ function show(detail) {
     setLink(secondary, String(props.bookableResourceUrl), 'Open resource');
   } else if (kind === 'asset' && props.accountDynamicsUrl) {
     setLink(secondary, String(props.accountDynamicsUrl), 'Open account');
+  } else if (kind === 'resource' && props.contactDynamicsUrl) {
+    setLink(secondary, String(props.contactDynamicsUrl), 'Open contact');
   } else {
     setLink(secondary, '', '');
   }
