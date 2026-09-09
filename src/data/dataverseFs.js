@@ -28,14 +28,14 @@ function firstString(...vals) {
   return undefined;
 }
 
-/** Bill: href. Aliases dynamicsUrl, url */
+/** Bill lock: dynamicsUrl (aliases href, url) */
 export function resolveDynamicsHref(props = {}) {
-  return firstString(props.href, props.dynamicsUrl, props.url);
+  return firstString(props.dynamicsUrl, props.href, props.url);
 }
 
-/** Thumb. Aliases image, imageUrl, photo, avatar */
+/** Bill lock: imageUrl (aliases image/photo/avatar — never pic) */
 export function resolveFeatureImage(props = {}) {
-  return firstString(props.image, props.imageUrl, props.photo, props.avatar);
+  return firstString(props.imageUrl, props.image, props.photo, props.avatar); // never pic
 }
 
 export function normalizeDataverseFsCollection(collection) {
@@ -85,12 +85,25 @@ export function normalizeDataverseFsCollection(collection) {
         status: props.status,
         href: resolveDynamicsHref(props),
         image: resolveFeatureImage(props),
+        imageUrl: resolveFeatureImage(props),
+        dynamicsUrl: resolveDynamicsHref(props),
         priority: props.priority,
         updated: props.updated,
         staleSec: props.staleSec,
         resourceId: props.resourceId,
         color: props.color,
         title: props.title,
+        phone: props.phone,
+        email: props.email,
+        assetNumber: props.assetNumber,
+        accountName: props.accountName,
+        accountDynamicsUrl: props.accountDynamicsUrl,
+        siteName: props.siteName,
+        siteId: props.siteId,
+        customerName: props.customerName,
+        customerImageUrl: props.customerImageUrl,
+        customerDynamicsUrl: props.customerDynamicsUrl,
+        bookableResourceUrl: props.bookableResourceUrl,
         wo: props.wo,
       },
     });
