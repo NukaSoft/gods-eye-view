@@ -290,6 +290,7 @@ export function createLocalGeoJsonLayer({
   overlayHost = DEFAULT_OVERLAY_HOST,
   screenSpaceEventHandlerFactory = (canvas) => new Cesium.ScreenSpaceEventHandler(canvas),
   projectToWindow = (scene, position) => Cesium.SceneTransforms.worldToWindowCoordinates(scene, position),
+  transformCollection = null,
 }) {
   let _dataSource = null;
   let _enabled = false;
@@ -428,14 +429,25 @@ export function createLocalGeoJsonLayer({
             throw new Error(`HTTP ${response.status ?? '?'}`);
           }
           const text = await response.text();
-          const lines = text.split('\n').filter(l => l.trim().length > 0);
-          
-          const features = lines.map(line => JSON.parse(line));
-          
-          const geojson = {
-            type: 'FeatureCollection',
-            features
-          };
+          let geojson = null;
+          // Prefer a whole-document FeatureCollection (Bill adapter / sample .geojson).
+          // Fall back to JSON Lines (.geojsonl) used by bundled dams/datacenters.
+          try {
+            const parsed = JSON.parse(text);
+            if (parsed && parsed.type === 'FeatureCollection' && Array.isArray(parsed.features)) {
+              geojson = parsed;
+            }
+          } catch {
+            // not a single JSON document — try JSONL below
+          }
+          if (!geojson) {
+            const lines = text.split('\n').filter(l => l.trim().length > 0);
+            const features = lines.map(line => JSON.parse(line));
+            geojson = { type: 'FeatureCollection', features };
+          }
+          if (typeof transformCollection === 'function') {
+            geojson = transformCollection(geojson) || geojson;
+          }
 
           // Natively parse into entities and use it as our _dataSource
           loaded = await Cesium.GeoJsonDataSource.load(geojson, {

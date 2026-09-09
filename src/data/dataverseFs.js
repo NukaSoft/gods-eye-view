@@ -72,6 +72,7 @@ const dataverseFsLayer = createLocalGeoJsonLayer({
   labels: true,
   labelMax: 800,
   labelGridPx: 140,
+  transformCollection: normalizeDataverseFsCollection,
 });
 
 export function getDataverseFsLayer() {
