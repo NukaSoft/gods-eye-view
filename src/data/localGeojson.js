@@ -291,6 +291,8 @@ export function createLocalGeoJsonLayer({
   screenSpaceEventHandlerFactory = (canvas) => new Cesium.ScreenSpaceEventHandler(canvas),
   projectToWindow = (scene, position) => Cesium.SceneTransforms.worldToWindowCoordinates(scene, position),
   transformCollection = null,
+  pinMode = 'stem',
+  resolvePinVisual = null,
 }) {
   let _dataSource = null;
   let _enabled = false;
@@ -497,15 +499,57 @@ export function createLocalGeoJsonLayer({
               }
             }
 
+            // Trails / LineStrings — distinctive grounded polylines (no stem)
+            if (!pos && feature.polyline) {
+              const lineProps = propertyObject(feature);
+              const vis = typeof resolvePinVisual === 'function'
+                ? (resolvePinVisual(lineProps) || {})
+                : {};
+              const lineColor = Cesium.Color.fromCssColorString(vis.color || color);
+              const width = Number(vis.trailWidth) > 0 ? Number(vis.trailWidth) : 6;
+              feature.polyline.width = width;
+              feature.polyline.material = new Cesium.ColorMaterialProperty(lineColor.withAlpha(0.92));
+              feature.polyline.clampToGround = true;
+              try {
+                const positions = feature.polyline.positions?.getValue?.(Cesium.JulianDate.now());
+                if (positions && positions.length) {
+                  pos = positions[Math.floor(positions.length / 2)];
+                }
+              } catch {
+                // ignore
+              }
+              if (pos) {
+                const cartoLine = Cesium.Cartographic.fromCartesian(pos);
+                const recordIdLine = String(feature.id ?? i);
+                registerEntityContext(feature, {
+                  id: `${id}:${recordIdLine}`,
+                  layerId: id,
+                  layerName: name,
+                  source,
+                  dataSource: loaded,
+                  label: featureLabelFromProperties(lineProps, id),
+                  properties: lineProps,
+                  latitude: Number(Cesium.Math.toDegrees(cartoLine.latitude).toFixed(6)),
+                  longitude: Number(Cesium.Math.toDegrees(cartoLine.longitude).toFixed(6)),
+                });
+              }
+              continue;
+            }
+
             if (!pos) continue;
 
             const carto = Cesium.Cartographic.fromCartesian(pos);
+            const properties = propertyObject(feature);
+            const vis = typeof resolvePinVisual === 'function'
+              ? (resolvePinVisual(properties) || {})
+              : {};
+            const pinColor = Cesium.Color.fromCssColorString(vis.color || color);
             const groundHeight = 0; // Ellipsoid surface until a scene sample lands
-            const tipHeight = 2000; // Initial Stem height
+            // fleet pins hug ground; infra stems stay tall for pick/visibility
+            const tipHeight = pinMode === 'ground' ? 2 : 2000;
 
             const base = Cesium.Cartesian3.fromRadians(carto.longitude, carto.latitude, groundHeight);
             const tip = Cesium.Cartesian3.fromRadians(carto.longitude, carto.latitude, tipHeight);
-            const properties = propertyObject(feature);
             const recordId = String(feature.id ?? i);
 
             // Store references for bounded stem scaling and native picking.
@@ -527,21 +571,54 @@ export function createLocalGeoJsonLayer({
             // cadence. Cesium no longer evaluates 2-3 callbacks per entity on
             // every frame, while the point/stem pick surface stays native.
             feature.position = tip;
-            const stemPositionBuffers = [[base, tip], [base, tip]];
-            feature.polyline = new Cesium.PolylineGraphics({
-              positions: stemPositionBuffers[0],
-              width: 3.5,
-              material: new Cesium.ColorMaterialProperty(baseColor),
-            });
-            feature.point = new Cesium.PointGraphics({
-              pixelSize: 10,
-              color: baseColor,
-              outlineColor: Cesium.Color.BLACK,
-              outlineWidth: 2,
-              // Never depth-cull the anchor against the photoreal mesh —
-              // globe-horizon culling is handled by the pre-render occluder.
-              disableDepthTestDistance: Number.POSITIVE_INFINITY,
-            });
+            let stemPositionBuffers = [[base, tip], [base, tip]];
+            if (pinMode === 'ground') {
+              // Dispatch-room pins: clamped billboards with kind glyphs (no tall stem)
+              const glyph = vis.glyph || icon || '•';
+              let image = null;
+              try {
+                const pinBuilder = new Cesium.PinBuilder();
+                image = pinBuilder.fromText(String(glyph), pinColor, 48).toDataURL();
+              } catch {
+                image = null;
+              }
+              feature.polyline = undefined;
+              feature.point = undefined;
+              feature.billboard = new Cesium.BillboardGraphics({
+                image: image || undefined,
+                color: image ? Cesium.Color.WHITE : pinColor,
+                verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+                heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+                disableDepthTestDistance: Number.POSITIVE_INFINITY,
+                scale: 1.0,
+              });
+              if (!image) {
+                feature.point = new Cesium.PointGraphics({
+                  pixelSize: 14,
+                  color: pinColor,
+                  outlineColor: Cesium.Color.BLACK,
+                  outlineWidth: 2,
+                  heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+                  disableDepthTestDistance: Number.POSITIVE_INFINITY,
+                });
+              }
+              stemPositionBuffers = [[base, tip], [base, tip]];
+            } else {
+              feature.polyline = new Cesium.PolylineGraphics({
+                positions: stemPositionBuffers[0],
+                width: 3.5,
+                material: new Cesium.ColorMaterialProperty(baseColor),
+              });
+              feature.point = new Cesium.PointGraphics({
+                pixelSize: 10,
+                color: baseColor,
+                outlineColor: Cesium.Color.BLACK,
+                outlineWidth: 2,
+                // Never depth-cull the anchor against the photoreal mesh —
+                // globe-horizon culling is handled by the pre-render occluder.
+                disableDepthTestDistance: Number.POSITIVE_INFINITY,
+              });
+            }
 
             const priority = labelPriorityFromProperties(properties, id);
             _stemRecords.push({
@@ -557,13 +634,15 @@ export function createLocalGeoJsonLayer({
               groundSampled: false,
               lastGroundSampleMs: 0,
               priority,
+              mode: pinMode === 'ground' ? 'ground' : 'stem',
+              accent: vis.color || color,
               entry: labels ? createLocalInfrastructureOverlayEntry({
                 id: recordId,
                 layerId: id,
                 position: tip,
                 properties,
                 priority,
-                accent: color,
+                accent: vis.color || color,
               }) : null,
             });
           }
@@ -799,6 +878,25 @@ function updateLocalStemGeometry(viewer, record, now, knownDistance = null) {
     ? knownDistance
     : Cesium.Cartesian3.distance(viewer.camera.positionWC, record.base);
   if (distance < GROUND_SAMPLE_MAX_DISTANCE_M) sampleLocalGroundHeight(viewer, record, now);
+
+  // Ground-mode fleet pins stay clamped — never grow a 2km stem
+  if (record.mode === 'ground') {
+    const tipHeight = record.groundHeight + 2;
+    Cesium.Cartesian3.fromRadians(
+      record.carto.longitude,
+      record.carto.latitude,
+      tipHeight,
+      Cesium.Ellipsoid.WGS84,
+      record.nextTip,
+    );
+    if (Cesium.Cartesian3.distanceSquared(record.tip, record.nextTip) <= LOCAL_STEM_TIP_EPSILON_SQ) {
+      return false;
+    }
+    Cesium.Cartesian3.clone(record.nextTip, record.tip);
+    if (record.entity.position?.setValue) record.entity.position.setValue(record.tip);
+    return true;
+  }
+
   const effectiveDistance = Math.max(distance, 5000);
   const canvasHeight = viewer.scene.canvas.clientHeight || 1080;
   const fov = viewer.camera.frustum.fov || (Math.PI / 3);

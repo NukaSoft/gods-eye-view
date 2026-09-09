@@ -8,6 +8,33 @@ import { installDataverseFsHud } from './dataverseFsHud.js';
 
 import { createLocalGeoJsonLayer } from './localGeojson.js';
 
+
+/** Visual language for dispatch pins (Pierre punch list). */
+export function visualForKind(kind, props = {}) {
+  const k = String(kind || 'site');
+  const fromProp = props.color && String(props.color).trim();
+  switch (k) {
+    case 'resource':
+      return { color: fromProp || '#00c853', glyph: 'T', trailWidth: 6 }; // Truck
+    case 'contact':
+      return { color: fromProp || '#26a69a', glyph: 'P', trailWidth: 4 }; // Person
+    case 'asset':
+      return { color: fromProp || '#c62828', glyph: 'A', trailWidth: 4 }; // Asset / gear
+    case 'workorder': {
+      const pri = String(props.priority || '').toLowerCase();
+      const c = pri === 'high' || pri === 'emergency' ? '#ff6f00' : '#fbc02d';
+      return { color: fromProp || c, glyph: 'W', trailWidth: 4 };
+    }
+    case 'customer':
+      return { color: fromProp || '#78909c', glyph: 'C', trailWidth: 4 };
+    case 'trail':
+      return { color: fromProp || '#00c853', glyph: '', trailWidth: 7 };
+    case 'site':
+    default:
+      return { color: fromProp || '#e8eaf6', glyph: 'S', trailWidth: 4 };
+  }
+}
+
 export const DATAVERSE_FS_OVERLAY_SOURCE_ID = 'dataverse-fs';
 
 const ALLOWED_KINDS = new Set(['customer', 'site', 'asset', 'workorder', 'resource', 'contact', 'trail']);
@@ -140,6 +167,8 @@ const dataverseFsLayer = createLocalGeoJsonLayer({
   labelMax: 800,
   labelGridPx: 140,
   transformCollection: normalizeDataverseFsCollection,
+  pinMode: 'ground',
+  resolvePinVisual: (props) => visualForKind(props?.kind, props),
 });
 
 export function getDataverseFsLayer() {
