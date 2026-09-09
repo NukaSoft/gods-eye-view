@@ -1,3 +1,4 @@
+<!-- Product: God's Eye View — Dynamics | Tagline: Real-time view of your fleet in the field | Dataverse is not the marquee -->
 > **God's Eye View - Dynamics** (NukaSoft). Open-source showcase: Dataverse / Power Platform GPS-located business data on the living globe. [Connect to Dynamics](./CONNECT-DYNAMICS.md). Forked from [bilawalsidhu/gods-eye-view](https://github.com/bilawalsidhu/gods-eye-view). Community PRs welcome.
 
 <div align="center">

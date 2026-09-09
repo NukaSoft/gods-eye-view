@@ -1,3 +1,4 @@
+<!-- Product: God's Eye View — Dynamics | Tagline: Real-time view of your fleet in the field | Dataverse is not the marquee -->
 # God's Eye View - Dynamics
 
 **NukaSoft open-source fork** of [bilawalsidhu/gods-eye-view](https://github.com/bilawalsidhu/gods-eye-view).
@@ -31,3 +32,9 @@ This is not a closed ISV black box. It is a community-shaped bridge from OSINT-g
 Early public versioning. Demo data only until security pass. No customer PHI. No live tech GPS in public builds until consent model is locked.
 
 Repo: https://github.com/NukaSoft/gods-eye-view
+
+## Layer module (eggbot 2026-09-09)
+- src/data/dataverseFs.js — Cesium overlay via local GeoJSON loader
+- Sample: public/samples/dataverse-fs-ww-demo.geojson`r
+- Env: VITE_DATAVERSE_FS_GEOJSON_URL (adapter URL); default = sample
+- Toggle appears with other local data layers (Dynamics Field Service)

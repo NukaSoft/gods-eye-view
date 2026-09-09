@@ -1,0 +1,149 @@
+/* NukaSoft Dynamics skin — tin-sign dispatch wall (Pierre/Holt 2026-09-09)
+   Default ON via body.skin-nukasoft-dynamics. Upstream dark-sci-fi stays in style.css. */
+
+body.skin-nukasoft-dynamics {
+  --bg-dark: #1a0f0c;
+  --glass-bg: rgba(61, 28, 11, 0.82);
+  --glass-border: rgba(245, 230, 200, 0.18);
+  --glass-border-hover: rgba(245, 230, 200, 0.32);
+  --accent: #C41E24;
+  --accent-dim: rgba(196, 30, 36, 0.18);
+  --accent-glow: rgba(196, 30, 36, 0.45);
+  --text-primary: #F5E6C8;
+  --text-secondary: rgba(245, 230, 200, 0.72);
+  --text-dim: rgba(245, 230, 200, 0.42);
+  --nuka-red: #C41E24;
+  --cream-ivory: #F5E6C8;
+  --cola-brown: #3D1C0B;
+  --brass: #8B6914;
+  --aged-paper: #E8DCC8;
+}
+
+/* Title lockup: product chrome, not gaze logo hero */
+body.skin-nukasoft-dynamics .brand-logo,
+body.skin-nukasoft-dynamics [data-logo-gaze],
+body.skin-nukasoft-dynamics .loader-logo {
+  display: none !important;
+}
+
+body.skin-nukasoft-dynamics .title-glow h1,
+body.skin-nukasoft-dynamics .title-glow h2 {
+  color: var(--cream-ivory);
+  letter-spacing: 0.04em;
+  text-shadow: none;
+}
+
+body.skin-nukasoft-dynamics .title-accent {
+  color: var(--nuka-red);
+  text-shadow: none;
+}
+
+body.skin-nukasoft-dynamics .subtitle {
+  color: var(--aged-paper);
+  font-weight: 500;
+}
+
+/* Hide unused OSINT / cockpit attribution chrome on this product skin */
+body.skin-nukasoft-dynamics .cockpit-weather-credit,
+body.skin-nukasoft-dynamics .cesium-viewer-bottom,
+body.skin-nukasoft-dynamics .cesium-credit-logoContainer,
+body.skin-nukasoft-dynamics .cesium-credit-expand-link,
+body.skin-nukasoft-dynamics [data-attribution-tray],
+body.skin-nukasoft-dynamics .attribution-tray,
+body.skin-nukasoft-dynamics .data-source-credits,
+body.skin-nukasoft-dynamics .source-attribution,
+body.skin-nukasoft-dynamics #style-indicator {
+  display: none !important;
+}
+
+/* First-run: drop mission-control sci-fi; keep simple dispatch welcome */
+body.skin-nukasoft-dynamics .first-run-scanline {
+  display: none !important;
+}
+body.skin-nukasoft-dynamics .first-run-kicker {
+  color: var(--nuka-red);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+body.skin-nukasoft-dynamics .first-run-header,
+body.skin-nukasoft-dynamics .first-run-choices button,
+body.skin-nukasoft-dynamics .first-run-explore {
+  border-color: color-mix(in srgb, var(--cream-ivory) 28%, transparent);
+  color: var(--cream-ivory);
+}
+
+/* Tin-sign pick HUD */
+body.skin-nukasoft-dynamics #dataverse-fs-hud {
+  background-color: #C41E24;
+  background-image: linear-gradient(165deg, #C41E24 0%, #8a1519 55%, #3D1C0B 100%);
+  border: 2px solid var(--cream-ivory);
+  color: var(--cream-ivory);
+  box-shadow: 0 8px 28px rgba(0,0,0,0.45);
+  border-radius: 6px;
+}
+body.skin-nukasoft-dynamics #dataverse-fs-hud .dv-hud-kind {
+  color: var(--aged-paper);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 11px;
+}
+body.skin-nukasoft-dynamics #dataverse-fs-hud .dv-hud-name {
+  color: var(--cream-ivory);
+}
+body.skin-nukasoft-dynamics #dataverse-fs-hud .dv-hud-status,
+body.skin-nukasoft-dynamics #dataverse-fs-hud .dv-hud-fields dt {
+  color: rgba(245, 230, 200, 0.7);
+}
+body.skin-nukasoft-dynamics #dataverse-fs-hud .dv-hud-fields dd {
+  color: var(--cream-ivory);
+}
+body.skin-nukasoft-dynamics #dataverse-fs-hud .dv-hud-link {
+  background: var(--cream-ivory);
+  color: var(--nuka-red);
+  border: none;
+  font-weight: 650;
+}
+body.skin-nukasoft-dynamics #dataverse-fs-hud .dv-hud-link.secondary {
+  background: transparent;
+  border: 1px solid var(--cream-ivory);
+  color: var(--cream-ivory);
+}
+body.skin-nukasoft-dynamics #dataverse-fs-hud .dv-hud-close {
+  color: var(--cream-ivory);
+}
+
+/* Soften neon glow language on buttons/panels under this skin */
+body.skin-nukasoft-dynamics button:hover,
+body.skin-nukasoft-dynamics .panel,
+body.skin-nukasoft-dynamics .tray {
+  text-shadow: none;
+}
+
+
+/* Dispatch skin: keep Fleet wall; hide unused OSINT theater layers + source meta */
+body.skin-nukasoft-dynamics .data-toggle-meta {
+  display: none !important;
+}
+body.skin-nukasoft-dynamics .data-toggle-row[data-layer-id="flights"],
+body.skin-nukasoft-dynamics .data-toggle-row[data-layer-id="military"],
+body.skin-nukasoft-dynamics .data-toggle-row[data-layer-id="earthquakes"],
+body.skin-nukasoft-dynamics .data-toggle-row[data-layer-id="satellites"],
+body.skin-nukasoft-dynamics .data-toggle-row[data-layer-id="rocket-launches"],
+body.skin-nukasoft-dynamics .data-toggle-row[data-layer-id="traffic"],
+body.skin-nukasoft-dynamics .data-toggle-row[data-layer-id="cctv"],
+body.skin-nukasoft-dynamics .data-toggle-row[data-layer-id="radio"],
+body.skin-nukasoft-dynamics .data-toggle-row[data-layer-id="bikeshare"],
+body.skin-nukasoft-dynamics .data-toggle-row[data-layer-id="ais-live-vessels"],
+body.skin-nukasoft-dynamics .data-toggle-row[data-layer-id="military-installations"],
+body.skin-nukasoft-dynamics .data-toggle-row[data-layer-id="military-awareness"],
+body.skin-nukasoft-dynamics .data-toggle-row[data-layer-id="local-firms"],
+body.skin-nukasoft-dynamics .data-toggle-row[data-layer-id="telegeography-submarine-cables"],
+body.skin-nukasoft-dynamics .data-toggle-row[data-layer-id="local-datacenters"],
+body.skin-nukasoft-dynamics .data-toggle-row[data-layer-id="local-dams"] {
+  display: none !important;
+}
+
+body.skin-nukasoft-dynamics .cesium-credit-lightbox,
+body.skin-nukasoft-dynamics .cesium-credit-wrapper {
+  display: none !important;
+}

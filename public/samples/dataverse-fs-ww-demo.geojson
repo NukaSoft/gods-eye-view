@@ -1,0 +1,96 @@
+{
+  "type": "FeatureCollection",
+  "name": "dataverse-fs-ww-demo",
+  "crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+  "properties": {
+    "source": "sample",
+    "org": "nukasoft.crm.dynamics.com",
+    "theme": "WeatherWyze",
+    "disclaimer": "Synthetic demo coordinates for GEV layer spike. Not live GPS. No real customer PHI. Scrub before any public PR."
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [-85.6681, 42.9634] },
+      "properties": {
+        "kind": "customer",
+        "entity": "account",
+        "id": "00000000-0000-0000-0000-000000000101",
+        "name": "WW Demo Municipal Utilities",
+        "status": "active"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [-85.6702, 42.9610] },
+      "properties": {
+        "kind": "site",
+        "entity": "msdyn_functionallocation",
+        "id": "00000000-0000-0000-0000-000000000201",
+        "name": "WW Site — River Pump Station",
+        "status": "active"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [-85.6655, 42.9662] },
+      "properties": {
+        "kind": "site",
+        "entity": "msdyn_functionallocation",
+        "id": "00000000-0000-0000-0000-000000000202",
+        "name": "WW Site — North Substation",
+        "status": "active"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [-85.6702, 42.9611] },
+      "properties": {
+        "kind": "asset",
+        "entity": "msdyn_customerasset",
+        "id": "00000000-0000-0000-0000-000000000301",
+        "name": "Pump P-12",
+        "status": "active",
+        "locationSource": "site"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [-85.6700, 42.9608] },
+      "properties": {
+        "kind": "workorder",
+        "entity": "msdyn_workorder",
+        "id": "00000000-0000-0000-0000-000000000401",
+        "name": "WW-DEMO-001",
+        "status": "open",
+        "priority": "high"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [-85.6658, 42.9660] },
+      "properties": {
+        "kind": "workorder",
+        "entity": "msdyn_workorder",
+        "id": "00000000-0000-0000-0000-000000000402",
+        "name": "WW-DEMO-002",
+        "status": "open",
+        "priority": "normal"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [-85.6670, 42.9645] },
+      "properties": {
+        "kind": "resource",
+        "entity": "bookableresource",
+        "id": "00000000-0000-0000-0000-000000000501",
+        "name": "WW Tech A (demo)",
+        "status": "available",
+        "locationSource": "start",
+        "updated": "2026-09-09T18:00:00Z",
+        "staleSec": 3600
+      }
+    }
+  ]
+}
