@@ -9,7 +9,7 @@ import { createLocalGeoJsonLayer } from './localGeojson.js';
 
 export const DATAVERSE_FS_OVERLAY_SOURCE_ID = 'dataverse-fs';
 
-const ALLOWED_KINDS = new Set(['customer', 'site', 'asset', 'workorder', 'resource', 'contact']);
+const ALLOWED_KINDS = new Set(['customer', 'site', 'asset', 'workorder', 'resource', 'contact', 'trail']);
 
 /**
  * Normalize a GeoJSON FeatureCollection for the FS layer (unit-testable, no Cesium).
@@ -23,23 +23,41 @@ export function normalizeDataverseFsCollection(collection) {
   }
   const features = [];
   for (const f of collection.features) {
-    const coords = f?.geometry?.coordinates;
-    if (!Array.isArray(coords) || coords.length < 2) continue;
-    if (coords[0] == null || coords[1] == null) continue;
-    const lon = Number(coords[0]);
-    const lat = Number(coords[1]);
-    if (!Number.isFinite(lon) || !Number.isFinite(lat)) continue;
+    const geom = f?.geometry;
+    if (!geom || !Array.isArray(geom.coordinates)) continue;
     const props = f.properties && typeof f.properties === 'object' ? { ...f.properties } : {};
-    if (props.kind && !ALLOWED_KINDS.has(String(props.kind))) {
-      // keep unknown kinds out of semantic success counts, but still allow render if coords valid
-      // for v1 we skip unknown kinds to avoid false greens
+    const kind = props.kind ? String(props.kind) : 'site';
+    if (props.kind && !ALLOWED_KINDS.has(kind)) continue;
+
+    let geometry = null;
+    if (geom.type === 'Point') {
+      if (geom.coordinates.length < 2) continue;
+      if (geom.coordinates[0] == null || geom.coordinates[1] == null) continue;
+      const lon = Number(geom.coordinates[0]);
+      const lat = Number(geom.coordinates[1]);
+      if (!Number.isFinite(lon) || !Number.isFinite(lat)) continue;
+      geometry = { type: 'Point', coordinates: [lon, lat] };
+    } else if (geom.type === 'LineString') {
+      // GPS trails under resources (day-sim kind=trail)
+      const coords = [];
+      for (const c of geom.coordinates) {
+        if (!Array.isArray(c) || c.length < 2) continue;
+        const lon = Number(c[0]);
+        const lat = Number(c[1]);
+        if (!Number.isFinite(lon) || !Number.isFinite(lat)) continue;
+        coords.push([lon, lat]);
+      }
+      if (coords.length < 2) continue;
+      geometry = { type: 'LineString', coordinates: coords };
+    } else {
       continue;
     }
+
     features.push({
       type: 'Feature',
-      geometry: { type: 'Point', coordinates: [lon, lat] },
+      geometry,
       properties: {
-        kind: props.kind ? String(props.kind) : 'site',
+        kind,
         entity: props.entity ? String(props.entity) : 'unknown',
         id: props.id != null ? String(props.id) : undefined,
         name: props.name != null ? String(props.name) : 'Untitled',
@@ -48,6 +66,10 @@ export function normalizeDataverseFsCollection(collection) {
         href: props.href,
         updated: props.updated,
         staleSec: props.staleSec,
+        resourceId: props.resourceId,
+        color: props.color,
+        title: props.title,
+        wo: props.wo,
       },
     });
   }
@@ -65,10 +87,10 @@ function resolveGeoJsonUrl() {
 const dataverseFsLayer = createLocalGeoJsonLayer({
   id: DATAVERSE_FS_OVERLAY_SOURCE_ID,
   url: resolveGeoJsonUrl(),
-  name: 'Dynamics Field Service',
+  name: 'Fleet · Resources · Assets',
   color: '#742774',
   icon: 'DV',
-  source: 'Dataverse FS',
+  source: 'NukaSoft Dispatch',
   labels: true,
   labelMax: 800,
   labelGridPx: 140,

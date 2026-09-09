@@ -31,3 +31,30 @@ test('normalize skips unknown kinds', () => {
   assert.equal(out.features.length, 1);
   assert.equal(out.features[0].properties.kind, 'workorder');
 });
+
+test('normalize keeps trail LineStrings and drops short trails', () => {
+  const out = normalizeDataverseFsCollection({
+    type: 'FeatureCollection',
+    features: [
+      {
+        type: 'Feature',
+        geometry: { type: 'LineString', coordinates: [[-85.67, 42.96], [-85.66, 42.97]] },
+        properties: { kind: 'trail', id: 'trail-a', name: 'Alpha trail', status: 'traveling' },
+      },
+      {
+        type: 'Feature',
+        geometry: { type: 'LineString', coordinates: [[-85.67, 42.96]] },
+        properties: { kind: 'trail', id: 'bad', name: 'short' },
+      },
+      {
+        type: 'Feature',
+        geometry: { type: 'Point', coordinates: [-85.67, 42.96] },
+        properties: { kind: 'workorder', id: 'wo-1', name: 'WW-DEMO-101', status: 'inprogress' },
+      },
+    ],
+  });
+  assert.equal(out.features.length, 2);
+  assert.equal(out.features[0].geometry.type, 'LineString');
+  assert.equal(out.features[0].properties.kind, 'trail');
+  assert.equal(out.features[1].properties.status, 'inprogress');
+});
