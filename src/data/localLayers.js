@@ -1,4 +1,5 @@
 import { createLocalGeoJsonLayer } from './localGeojson.js';
+import dataverseFsLayer from './dataverseFs.js';
 import { createFirmsHeatmapLayer } from './firmsHeatmap.js';
 import submarineCablesLayer from './telegeographySubmarineCables.js';
 
@@ -45,6 +46,7 @@ const fires = createFirmsHeatmapLayer({
 });
 
 export default [
+  dataverseFsLayer,
   datacenters,
   dams,
   submarineCablesLayer,
