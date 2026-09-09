@@ -1,3 +1,4 @@
+import { installDataverseFsHud } from './dataverseFsHud.js';
 /**
  * @module dataverseFs
  * Dynamics 365 Field Service / Dataverse dispatch layer for God's Eye View.
@@ -17,6 +18,26 @@ const ALLOWED_KINDS = new Set(['customer', 'site', 'asset', 'workorder', 'resour
  * @param {object} collection
  * @returns {{type:string, features:object[]}}
  */
+
+function firstString(...vals) {
+  for (const v of vals) {
+    if (v == null) continue;
+    const s = String(v).trim();
+    if (s) return s;
+  }
+  return undefined;
+}
+
+/** Bill: href. Aliases dynamicsUrl, url */
+export function resolveDynamicsHref(props = {}) {
+  return firstString(props.href, props.dynamicsUrl, props.url);
+}
+
+/** Thumb. Aliases image, imageUrl, photo, avatar */
+export function resolveFeatureImage(props = {}) {
+  return firstString(props.image, props.imageUrl, props.photo, props.avatar);
+}
+
 export function normalizeDataverseFsCollection(collection) {
   if (!collection || collection.type !== 'FeatureCollection' || !Array.isArray(collection.features)) {
     return { type: 'FeatureCollection', features: [] };
@@ -62,8 +83,9 @@ export function normalizeDataverseFsCollection(collection) {
         id: props.id != null ? String(props.id) : undefined,
         name: props.name != null ? String(props.name) : 'Untitled',
         status: props.status,
+        href: resolveDynamicsHref(props),
+        image: resolveFeatureImage(props),
         priority: props.priority,
-        href: props.href,
         updated: props.updated,
         staleSec: props.staleSec,
         resourceId: props.resourceId,
@@ -114,3 +136,5 @@ export async function refreshDataverseFs(viewer) {
 }
 
 export default dataverseFsLayer;
+
+if (typeof window !== 'undefined') installDataverseFsHud();

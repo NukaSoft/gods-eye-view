@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { normalizeDataverseFsCollection } from './dataverseFs.js';
+import { normalizeDataverseFsCollection, resolveDynamicsHref, resolveFeatureImage } from './dataverseFs.js';
 
 test('normalize drops null coords and empty input', () => {
   assert.deepEqual(normalizeDataverseFsCollection(null).features, []);
@@ -57,4 +57,28 @@ test('normalize keeps trail LineStrings and drops short trails', () => {
   assert.equal(out.features[0].geometry.type, 'LineString');
   assert.equal(out.features[0].properties.kind, 'trail');
   assert.equal(out.features[1].properties.status, 'inprogress');
+});
+
+
+test('resolveDynamicsHref and image aliases', () => {
+  assert.equal(resolveDynamicsHref({ dynamicsUrl: 'https://example/d' }), 'https://example/d');
+  assert.equal(resolveDynamicsHref({ href: 'https://example/h' }), 'https://example/h');
+  assert.equal(resolveFeatureImage({ imageUrl: 'https://img/a.png' }), 'https://img/a.png');
+  const out = normalizeDataverseFsCollection({
+    type: 'FeatureCollection',
+    features: [{
+      type: 'Feature',
+      geometry: { type: 'Point', coordinates: [-85.67, 42.96] },
+      properties: {
+        kind: 'workorder',
+        id: 'WO-1',
+        name: 'Test WO',
+        status: 'inprogress',
+        dynamicsUrl: 'https://nukasoft.crm.dynamics.com/main.aspx?etn=msdyn_workorder&id=1',
+        imageUrl: 'https://ui-avatars.com/api/?name=WO',
+      },
+    }],
+  });
+  assert.equal(out.features[0].properties.href.includes('msdyn_workorder'), true);
+  assert.ok(out.features[0].properties.image);
 });
