@@ -1,13 +1,13 @@
-﻿# Product framing — God's Eye View Dynamics
+# Product framing - God's Eye View Dynamics
 
-**Name:** God's Eye View — Dynamics  
-**Also:** God's Eye View for Power Platform / Dynamics 365 Field Service showcase  
-**Owner:** NukaSoft (Pierre / crew)  
-**License:** MIT (upstream) + NukaSoft contributions under same unless noted  
+**Name:** God's Eye View - Dynamics
+**Also:** God's Eye View for Power Platform / Dynamics 365 Field Service showcase
+**Owner:** NukaSoft (Pierre / crew)
+**License:** MIT (upstream) + NukaSoft contributions under same unless noted
 
 ## One-liner
 
-God's Eye View for Dynamics business apps — GPS-located Dataverse work on a living globe, source open for the Microsoft community.
+God's Eye View for Dynamics business apps - GPS-located Dataverse work on a living globe, source open for the Microsoft community.
 
 ## Audience
 

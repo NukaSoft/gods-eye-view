@@ -1,4 +1,4 @@
-﻿# God's Eye View — Dynamics
+# God's Eye View - Dynamics
 
 **NukaSoft open-source fork** of [bilawalsidhu/gods-eye-view](https://github.com/bilawalsidhu/gods-eye-view).
 
@@ -6,12 +6,12 @@
 
 What if dispatch, field service, and every GPS-located Dynamics business record lived on the same living globe as traffic, cameras, and the real world?
 
-**God's Eye View — Dynamics** is a showcase for the Microsoft Dynamics / Power Platform community:
+**God's Eye View - Dynamics** is a showcase for the Microsoft Dynamics / Power Platform community:
 
-- See **accounts, service locations, assets, work orders, and bookable resources** on a photorealistic 3D globe
-- Keep public context layers (traffic, cams, weather-adjacent signals) beside **your** Dataverse truth
-- Cut time-to-value for 'where is my work / where are my people / what is around this site'
-- **Source is public.** Contribute. Fork. PR. If you help build it, you have the code.
+- See accounts, service locations, assets, work orders, and bookable resources on a photorealistic 3D globe
+- Keep public context layers (traffic, cams, weather-adjacent signals) beside your Dataverse truth
+- Cut time-to-value for "where is my work / where are my people / what is around this site"
+- Source is public. Contribute. Fork. PR. If you help build it, you have the code.
 
 This is not a closed ISV black box. It is a community-shaped bridge from OSINT-grade geospatial UX into Dynamics 365 business applications (Field Service first).
 
@@ -23,8 +23,8 @@ This is not a closed ISV black box. It is a community-shaped bridge from OSINT-g
 
 ## Upstream
 
-- `origin` = this fork (ship + version)
-- `upstream` = bilawalsidhu/gods-eye-view (portable PRs welcome both ways)
+- origin = this fork (ship + version)
+- upstream = bilawalsidhu/gods-eye-view (portable PRs welcome both ways)
 
 ## Status
 
