@@ -1,3 +1,4 @@
+<!-- Product: God's Eye View — Dynamics | Tagline: Real-time view of your fleet in the field | Dataverse is not the marquee -->
 # God's Eye View - Dynamics
 
 **NukaSoft open-source fork** of [bilawalsidhu/gods-eye-view](https://github.com/bilawalsidhu/gods-eye-view).
