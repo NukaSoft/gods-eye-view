@@ -1,6 +1,4 @@
-﻿> **NukaSoft fork** — [Connect to Dynamics with God's Eye](./CONNECT-DYNAMICS.md). Upstream: [bilawalsidhu/gods-eye-view](https://github.com/bilawalsidhu/gods-eye-view). We version here and open PRs upstream when slices are ready.
-<div align="center">
-
+﻿> **God's Eye View — Dynamics** (NukaSoft). Open-source showcase: Dataverse / Power Platform GPS-located business data on the living globe. [Connect to Dynamics](./CONNECT-DYNAMICS.md). Forked from [bilawalsidhu/gods-eye-view](https://github.com/bilawalsidhu/gods-eye-view). Community PRs welcome.
 # ðŸŒ God's Eye View
 
 ### A spy-satellite simulator in your browser â€” then you realize the sources are public and the data is real.
@@ -509,4 +507,5 @@ One heads-up from the inside: build in this space for a week and you learn that 
 **ðŸŒ God's Eye View. No place left behind.**
 
 </div>
+
 
