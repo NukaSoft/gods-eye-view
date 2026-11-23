@@ -260,7 +260,7 @@ eggbot opens PRs. Pierre merges, publishes and spends. Each phase ends at a gate
 
 | Item | Decision |
 | --- | --- |
-| Target environment | The **main NukaSoft demo tenant, `nukasoft.crm.dynamics.com`**, approved by Pierre for this plan (relayed by the parent agent from Pierre's voice conversation; his exact wording was not included in the relay). This decides the plan only: **no writes happen now.** The first deployment and first live write are a Phase 8 gate that Pierre publishes. Never a client tenant; never apexfsdev. |
+| Target environment | The **main NukaSoft demo tenant, `nukasoft.crm.dynamics.com`**, approved by Pierre for this plan. Pierre, 2026-11-23, voice: "I think we, um, it's on the, the main demo tenant, the Nukasoft one is what we wanna do. We wanna have an agent, uh, bot or just some sort of timed event that goes in there and just does an update every few hours on those records and just moves them around in a loop, nine to five, 24/7 kind of a thing. Just move, move some assets and some resources, really more importantly, um, resources around on the map." This decides the plan only: **no writes happen now.** The first deployment and first live write are a Phase 8 gate that Pierre publishes. Never a client tenant; never apexfsdev. |
 | Headline | **Bookable resources move first**; customer assets move second. |
 | Cadence | **24/7 continuous loop, every few hours, always on by default.** The pause switch is a manual override. |
 | Movement | Resources **cycle the pre-authored routes repeatedly**. |
@@ -282,7 +282,7 @@ Note from the timer docs: a failed timer run is not retried until the next sched
 
 - Dedicated Entra **app registration** `NukaSoft GEV Demo Agent` and a Dataverse **application user** in `nukasoft.crm.dynamics.com`. Created by Pierre. Credential: certificate stored in `kv-tts-gev-prod`, read by the Function App's managed identity. No client secret in app settings, no secret in this repo or doc.
 - If The Technical Seller Azure tenant differs from the NukaSoft Dataverse tenant, the app registration is multi-tenant or lives in the NukaSoft tenant with the certificate in our Key Vault; confirm in Phase 5 (Section 11).
-- **Custom security role** (prefix-owned, `<prefix>_GEV Demo Agent`), scoped to a dedicated **"NukaSoft Demo" business unit / owner team**: all demo resources, assets, WOs and bookings are owned by that team, and the role grants Business Unit level access only. Privileges: read bookable resource, functional location, account (no write on Account), incident type, booking status; create/update work order, resource requirement, bookable resource booking; update customer asset (only if 8.4 option chosen); create geolocation tracking (only if chosen); full CRUD on the agent's own tables. No delete privilege on any stock table.
+- **Custom security role** (`NukaSoft GEV Demo Agent`, shipped in the `nuka` solution), scoped to a dedicated **"NukaSoft Demo" business unit / owner team**: all demo resources, assets, WOs and bookings are owned by that team, and the role grants Business Unit level access only. Privileges: read bookable resource, functional location, account (no write on Account), incident type, booking status; create/update work order, resource requirement, bookable resource booking; update customer asset (only if 8.4 option chosen); create geolocation tracking (only if chosen); full CRUD on the agent's own tables. No delete privilege on any stock table.
 - Two roles, two phases: Phase 5 export user gets read only; Phase 8 adds the write role.
 
 ### 8.4 Where positions are written (field ownership)
@@ -295,13 +295,13 @@ How Field Service places a resource on the schedule board map (Microsoft Learn):
 - **Customer Asset** has its own `msdyn_latitude` / `msdyn_longitude` (Double) columns ([msdyn_customerasset](https://learn.microsoft.com/en-us/dynamics365/developer/reference/entities/msdyn_customerasset)). These are not Account fields.
 
 Design:
-1. **Always:** write to our own table `<prefix>_demoposition` (one row per tracked record: target table + record ID as an **alternate key**, `latitude`, `longitude`, `routeid`, `legindex`, `progress`, `heading`, `updatedon`). The GEV export reads this table. Upsert by alternate key means no duplicates, ever.
+1. **Always:** write to our own table `nuka_demoposition` (one row per tracked record: target table + record ID as an **alternate key**, `latitude`, `longitude`, `routeid`, `legindex`, `progress`, `heading`, `updatedon`). The GEV export reads this table. Upsert by alternate key means no duplicates, ever.
 2. **Option, schedule board shows motion:** also create one `msdyn_geolocationtracking` row per resource per movement step. This only works for **User-type** bookable resources (the lookup is to systemuser), which means demo techs would be users in the tenant. That collides with the "no test users, admin account only" practice used on other builds. **Decision for Pierre** (Section 11).
 3. **Option, assets:** write `msdyn_customerasset.msdyn_latitude/longitude` for assets marked mobile (trailer pumps, portable generators). Fixed assets never move. **Decision for Pierre.** Default is own table only.
 
 ### 8.5 Movement model
 
-- **Authored routes**, stored as `<prefix>_demoroute` rows (or a JSON file in `agent-state` for v1): ordered waypoint lists that follow real roads, snapped once in Phase 3. v1 routes: `I96-GH-GR` (Grand Haven area to I-96/US-131), `I96-GR-EAST` (US-131 interchange to M-6 east end), `US131-ROCKFORD-WYOMING`, `M6-RING` (I-196 Jenison to US-131 Wyoming to I-96 Cascade), `I196-GR-HOLLAND`, and short city legs to each site.
+- **Authored routes**, stored as `nuka_demoroute` rows (or a JSON file in `agent-state` for v1): ordered waypoint lists that follow real roads, snapped once in Phase 3. v1 routes: `I96-GH-GR` (Grand Haven area to I-96/US-131), `I96-GR-EAST` (US-131 interchange to M-6 east end), `US131-ROCKFORD-WYOMING`, `M6-RING` (I-196 Jenison to US-131 Wyoming to I-96 Cascade), `I196-GR-HOLLAND`, and short city legs to each site.
 - **No teleporting.** Each step moves along the polyline by distance = speed x elapsed time, capped at the leg end. A position is only ever a point on an authored leg or at a site.
 - **Toward the booked WO.** The planner picks the route legs from the tech's current point to the next booked WO's functional location, so the trail and the WO list tell one story. Between bookings and after the last one, the tech cycles the assigned route loop.
 - **Reconcile, do not step blindly.** Every run computes "where should this tech be at time T" from the day plan (deterministic, seeded by date + resource ID), then writes that. Re-running the same tick writes the same values. A missed tick is caught up on the next.
@@ -310,7 +310,7 @@ Design:
 
 **Batch creation** (first tick after 05:00 Detroit each day):
 - Per resource, N WOs where N is drawn deterministically from `[woPerResourceMin, woPerResourceMax]`, **default 2 to 4**.
-- Stable external ID: `GEV-DEMO-YYYYMMDD-NN` (NN = 01..99 across the day), stored in our own column `<prefix>_demoexternalid` on `msdyn_workorder` with an **alternate key**. Creation is an upsert on that key, so a re-run never duplicates. The stock WO number (`msdyn_name`) is left to the product's own numbering; the external ID also goes into the WO summary text for search.
+- Stable external ID: `GEV-DEMO-YYYYMMDD-NN` (NN = 01..99 across the day), stored in our own column `nuka_demoexternalid` on `msdyn_workorder` with an **alternate key**. Creation is an upsert on that key, so a re-run never duplicates. The stock WO number (`msdyn_name`) is left to the product's own numbering; the external ID also goes into the WO summary text for search.
 - Types (prefix-owned incident types and work order types, created in our solution, not edits to stock records): **Pump Inspection** (Pump P-12, lift stations), **Substation Check** (North Substation, airport-area site), **Stormwater BMP Inspection** (Allendale, Holland, downtown). Each WO uses an existing WW-DEMO functional location and a customer asset at that location as primary incident asset, service account `WW Demo Municipal Utilities` or one of the fictional customers.
 - Priority mix: about 10 percent high, the storm emergency WO on storm days.
 
@@ -368,13 +368,13 @@ Bookings are scheduled with these minutes as travel time, so the booking start t
 ### 8.8 Check-in, check-out and logs
 
 - **Check-in** = booking set to In Progress at the moment the simulated position reaches the site. **Check-out** = booking end time + Completed. At both moments the agent writes an activity row with the booking ID, WO external ID, resource, status, timestamp (UTC and Detroit), and the resource's latitude/longitude. The trail is queryable from Dataverse (activity table) and from Blob.
-- **Position log**: every run, every tracked record, before and after positions: `{runId, tsUtc, target, recordId, before:{lat,lon}, after:{lat,lon}, routeId, legIndex, mode}`. Written to `agent-logs/positions/yyyy/mm/dd.jsonl` and to `<prefix>_demoposition` history if Pierre wants it in Dataverse.
-- **Activity log**: WO and booking transitions plus `RETURN_TO_HQ` and `PAUSED` runs, to `agent-logs/activity/...` and to `<prefix>_demoactivity` (own table, own views).
+- **Position log**: every run, every tracked record, before and after positions: `{runId, tsUtc, target, recordId, before:{lat,lon}, after:{lat,lon}, routeId, legIndex, mode}`. Written to `agent-logs/positions/yyyy/mm/dd.jsonl` and to `nuka_demoposition` history if Pierre wants it in Dataverse.
+- **Activity log**: WO and booking transitions plus `RETURN_TO_HQ` and `PAUSED` runs, to `agent-logs/activity/...` and to `nuka_demoactivity` (own table, own views).
 - Booking timestamps and booking journals are created by the product on each status change, so stock FS history also exists ([booking timestamps](https://learn.microsoft.com/en-us/dynamics365/field-service/booking-timestamps)).
 
 ### 8.9 Config, cadence, kill switch
 
-Config lives in our own table `<prefix>_demoagentconfig` (single row, prefix-owned, own form and view, no stock form edits) plus app settings as hard overrides:
+Config lives in our own table `nuka_demoagentconfig` (single row, prefix-owned, own form and view, no stock form edits) plus app settings as hard overrides:
 
 | Setting | Default | Where |
 | --- | --- | --- |
@@ -398,8 +398,8 @@ Config lives in our own table `<prefix>_demoagentconfig` (single row, prefix-own
 ### 8.10 Stock-only build bar
 
 - No edits to stock forms, views, option sets or booking status records. Option set values are never changed (Microsoft's own guidance in the lifecycle doc).
-- All agent customizations (tables, columns, alternate keys, incident types, WO types, security role, views, dashboards) ship in one unmanaged prefix-owned solution `NukaSoftGevDemoAgent`, under the NukaSoft publisher (prefix **TBD, Pierre to confirm**).
-- New columns on stock tables are limited to `<prefix>_demoexternalid` on `msdyn_workorder` (with its alternate key) and, only if chosen, nothing else.
+- All agent customizations (tables, columns, alternate keys, incident types, WO types, security role, views, dashboards) ship in one unmanaged prefix-owned solution `NukaSoftGevDemoAgent`, under the standing NukaSoft generic publisher: prefix `nuka`, option value prefix `38785`.
+- New columns on stock tables are limited to `nuka_demoexternalid` on `msdyn_workorder` (with its alternate key) and, only if chosen, nothing else.
 - No Project Operations strings. Never touch Account latitude/longitude.
 
 ## 9. Brand handoff notes for Rita
@@ -428,6 +428,8 @@ The accumulated history (closed WOs, bookings, booking timestamps and journals, 
 ### Decided
 
 1. **Target env for the demo agent:** main NukaSoft demo tenant `nukasoft.crm.dynamics.com` (plan only; first write is a Phase 8 gate Pierre publishes).
+   Pierre, 2026-11-23, voice:
+   > "I think we, um, it's on the, the main demo tenant, the Nukasoft one is what we wanna do. We wanna have an agent, uh, bot or just some sort of timed event that goes in there and just does an update every few hours on those records and just moves them around in a loop, nine to five, 24/7 kind of a thing. Just move, move some assets and some resources, really more importantly, um, resources around on the map."
 2. **Bookable resources are the headline;** customer assets move second.
 3. **24/7 loop, every few hours, always on;** pause is a manual override.
 4. **Routes cycle repeatedly.**
@@ -446,9 +448,8 @@ The accumulated history (closed WOs, bookings, booking timestamps and journals, 
 7. **Simulated plows:** show a labeled "Simulated MDOT plow route" layer or no plows until a public AVL feed exists.
 8. **Position targets:** own table only (default), plus `msdyn_geolocationtracking` for schedule board motion (needs User-type demo techs, which conflicts with the no-test-users practice), plus `msdyn_customerasset` latitude/longitude for mobile assets.
 9. **Cross-tenant identity:** if The Technical Seller Azure tenant is not the NukaSoft tenant, approve the app registration model (certificate in Key Vault, app registered in the NukaSoft tenant). Pierre creates the app registration and application user.
-10. **Publisher prefix** for the `NukaSoftGevDemoAgent` solution.
-11. **Demo business unit / owner team:** approve creating a "NukaSoft Demo" team or BU that owns all agent records, which is what scopes the role and the public export.
-12. **Night motion:** techs parked at HQ overnight (default) or a night route loop so the globe moves at any hour.
-13. **Log retention in Blob:** delete `agent-logs` and `exports-archive` blobs after N days (proposal 365), or keep forever in Cold.
-14. **Site access:** fully public, or SWA built-in auth (invite list, 25 users on Free) for the first weeks.
-15. **Storm days:** scripted on demand for talks only, or a recurring "storm Tuesday" in the live loop.
+10. **Demo business unit / owner team:** approve creating a "NukaSoft Demo" team or BU that owns all agent records, which is what scopes the role and the public export.
+11. **Night motion:** techs parked at HQ overnight (default) or a night route loop so the globe moves at any hour.
+12. **Log retention in Blob:** delete `agent-logs` and `exports-archive` blobs after N days (proposal 365), or keep forever in Cold.
+13. **Site access:** fully public, or SWA built-in auth (invite list, 25 users on Free) for the first weeks.
+14. **Storm days:** scripted on demand for talks only, or a recurring "storm Tuesday" in the live loop.
